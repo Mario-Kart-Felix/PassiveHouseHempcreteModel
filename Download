@@ -1,0 +1,64 @@
+You are not reading the most recent version of this documentation. v2.24.0 is the latest version available.
+
+Examples
+Note
+
+You can install all of the Python library requirements needed to run the example notebooks with: pip install datarobot[examples].
+
+Downloads
+Download all the notebooks and the supporting scripts and data files
+
+Download an open source font that supports the Japanese text example (only required in the Advanced Model Insights notebook).
+
+Example Jupyter Notebooks
+Predicting Bad Loans
+Overview
+Prerequisites
+Getting Started
+Create the Project
+Select Features for Modeling
+Run the Automated Modeling Process
+Exploring Trained Models
+Generating Predictions
+Modeling Airline Delay
+Overview
+Prerequisites
+Set Up
+Data Sources
+Dataset Structure
+DataRobot Modeling
+Configure the Python Client
+Starting a Project
+Jobs and the Project Queue
+Features
+Models
+Visualizing Models
+Unlocking the Holdout
+Retrain on 100%
+Predictions
+Advanced Model Insights
+Prerequisites
+Preparation
+Configure the Python Client
+Create Project with features
+Feature Impact
+Feature Histogram
+Lift Chart
+Rebinned Data
+ROC curve
+Word Cloud
+Advanced Model Tuning
+Prerequisites
+Preparation
+Configure the Python Client
+Create Project with features
+Time Series Modeling
+Overview
+Prerequisites
+Getting Started
+Create the Project
+Identify Known-In-Advance Features
+Create a Partition Specification
+Run the Automated Modeling Process
+Choose the Best Model
+Generate Predictions
