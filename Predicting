@@ -1,0 +1,358 @@
+You are not reading the most recent version of this documentation. v2.24.0 is the latest version available.
+
+Predicting Bad Loans
+Overview
+In this example we will build a binary classification model using the Lending Club dataset. Here is a list of things we will touch on during this notebook:
+
+Installing the datarobot package
+Configuring the client
+Creating a project
+Changing the datatype of some of the source columns
+Selecting the source columns used in the modeling process
+Running the automated modeling process
+Generating predictions
+Prerequisites
+In order to run this notebook yourself, you will need the following:
+
+This notebook. If you are viewing this in the HTML documentation bundle, you can download all of the example notebooks and supporting materials from Downloads.
+The required dataset, which is included in the same directory as this notebook.
+A DataRobot API token. You can find your API token by logging into the DataRobot Web User Interface and looking in your Profile.
+Installing the datarobot package
+The datarobot package is hosted on PyPI. You can install it via:
+
+pip install datarobot
+from the command line. Its main dependencies are numpy and pandas, which could take some time to install on a new system. We highly recommend use of virtualenvs to avoid conflicts with other dependencies in your system-wide python installation.
+
+Getting Started
+This line imports the datarobot package. By convention, we always import it with the alias dr.
+
+In [1]:
+import datarobot as dr
+Other Important Imports
+We’ll use these in this notebook as well. If the previous cell and the following cell both run without issue, you’re in good shape.
+
+In [2]:
+import datetime
+import pandas as pd
+Configure the Python Client
+Configuring the client requires the following two things:
+
+A DataRobot endpoint - where the API server can be found
+A DataRobot API token - a token the server uses to identify and validate the user making API requests
+The endpoint is usually the URL you would use to log into the DataRobot Web User Interface (e.g., https://app.datarobot.com) with “/api/v2/” appended, e.g., (https://app.datarobot.com/api/v2/).
+
+You can find your API token by logging into the DataRobot Web User Interface and looking in your Profile.
+
+The Python client can be configured in several ways. The example we’ll use in this notebook is to point to a yaml file that has the information. This is a text file containing two lines like this:
+
+endpoint: https://app.datarobot.com/api/v2/
+token: not-my-real-token
+If you want to run this notebook without changes, please save your configuration in a file located under your home directory called ~/.config/datarobot/drconfig.yaml.
+
+In [3]:
+# Initialization with arguments
+# dr.Client(token='<API TOKEN>', endpoint='https://<YOUR ENDPOINT>/api/v2/')
+
+# Initialization with a config file in the same directory as this notebook
+# dr.Client(config_path='drconfig.yaml')
+
+# Initialization with a config file located at
+# ~/.config/datarobot/dr.config.yaml
+dr.Client()
+Out[3]:
+<datarobot.rest.RESTClientObject at 0x11043b210>
+Create the Project
+Here, we use the datarobot package to upload a new file and create a project. The name of the project is optional, but can be helpful when trying to sort among many projects on DataRobot.
+
+In [4]:
+filename = '10K_Lending_Club_Loans.csv'
+now = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M')
+project_name = '10K_Lending_Club_Loans_{}'.format(now)
+proj = dr.Project.create(sourcedata=filename,
+                         project_name=project_name)
+print('Project ID: {}'.format(proj.id))
+Project ID: 5c007ffa784cc602016a9f06
+Select Features for Modeling
+First, retrieve the raw feature list. This corresponds to the columns in the input spreadsheet.
+
+In [5]:
+raw = [feat_list for feat_list in proj.get_featurelists()
+       if feat_list.name == 'Raw Features'][0]
+raw_features = [
+    {
+        "name": feat,
+        "type": dr.Feature.get(proj.id, feat).feature_type
+    }
+    for feat in raw.features
+]
+pd.DataFrame.from_dict(raw_features)
+Out[5]:
+name	type
+0	loan_amnt	Numeric
+1	funded_amnt	Numeric
+2	term	Categorical
+3	int_rate	Percentage
+4	installment	Numeric
+5	grade	Categorical
+6	sub_grade	Categorical
+7	emp_title	Text
+8	emp_length	Categorical
+9	home_ownership	Categorical
+10	annual_inc	Numeric
+11	verification_status	Categorical
+12	pymnt_plan	Categorical
+13	url	Text
+14	desc	Text
+15	purpose	Categorical
+16	title	Text
+17	zip_code	Categorical
+18	addr_state	Categorical
+19	dti	Numeric
+20	delinq_2yrs	Numeric
+21	earliest_cr_line	Date
+22	inq_last_6mths	Numeric
+23	mths_since_last_delinq	Numeric
+24	mths_since_last_record	Numeric
+25	open_acc	Numeric
+26	pub_rec	Numeric
+27	revol_bal	Numeric
+28	revol_util	Numeric
+29	total_acc	Numeric
+30	initial_list_status	Categorical
+31	mths_since_last_major_derog	None
+32	policy_code	Categorical
+33	is_bad	Numeric
+Modify Feature Types
+We can tweak features to improve the modeling. For example, we might change delinq_2yrs from an integer into a categorical.
+
+In [6]:
+proj.create_type_transform_feature(
+    "delinq_2yrs(Cat)",  # new feature name
+    "delinq_2yrs",       # parent name
+    dr.enums.VARIABLE_TYPE_TRANSFORM.CATEGORICAL_INT
+)
+Out[6]:
+Feature(delinq_2yrs(Cat))
+Then, we can change type of addr_state from categorical into text.
+
+In [7]:
+proj.create_type_transform_feature(
+    "addr_state(Text)",  # new feature name
+    "addr_state",        # parent name
+    dr.enums.VARIABLE_TYPE_TRANSFORM.TEXT
+)
+Out[7]:
+Feature(addr_state(Text))
+Select Features for Modeling
+Next, we create a new feature list where we remove the features delinq_2yrs and addr_state and add the modified features we just created.
+
+In [8]:
+feature_list_name = "new_feature_list"
+
+new_feature_list = proj.create_featurelist(
+    feature_list_name,
+    list((set(raw.features) - {"addr_state", "delinq_2yrs"}) |
+         {"addr_state(Text)", "delinq_2yrs(Cat)"})
+)
+Run the Automated Modeling Process
+Now we can start the modeling process. The target for this problem is called is_bad - a binary variable indicating whether or not the customer defaults on a particular loan.
+
+We specify that the metric that should be used is LogLoss. Without a specification DataRobot would automatically select an appropriate default metric.
+
+The featurelist_id parameter tells DataRobot to model on that specific featurelist, rather than the default Informative Features.
+
+Finally, the worker_count parameter specifies how many workers should be used for this project. Passing a value of -1 tells DataRobot to set the worker count to the maximum available to you. You can also specify the exact number of workers to use, but this command will fail if you request more workers than your account allows. If you need more resources than what has been allocated to you, you should think about upgrading your license.
+
+The last command in this cell is just a blocking loop that periodically checks on the project to see if it is done, printing out the number of jobs in progress and in the queue along the way so you can see progress. The automated model exploration process will occasionally add more jobs to the queue, so don’t be alarmed if the number of jobs does not strictly decrease over time.
+
+In [9]:
+proj.set_target(
+    "is_bad",
+    mode=dr.enums.AUTOPILOT_MODE.FULL_AUTO,
+    metric="LogLoss",
+    featurelist_id=new_feature_list.id,
+    worker_count=-1
+)
+
+proj.wait_for_autopilot()
+In progress: 17, queued: 21 (waited: 0s)
+In progress: 20, queued: 18 (waited: 1s)
+In progress: 20, queued: 18 (waited: 2s)
+In progress: 20, queued: 18 (waited: 3s)
+In progress: 19, queued: 18 (waited: 5s)
+In progress: 20, queued: 17 (waited: 7s)
+In progress: 20, queued: 16 (waited: 12s)
+In progress: 20, queued: 12 (waited: 19s)
+In progress: 19, queued: 8 (waited: 32s)
+In progress: 20, queued: 2 (waited: 53s)
+In progress: 16, queued: 0 (waited: 74s)
+In progress: 16, queued: 0 (waited: 95s)
+In progress: 16, queued: 0 (waited: 115s)
+In progress: 16, queued: 0 (waited: 136s)
+In progress: 15, queued: 0 (waited: 156s)
+In progress: 13, queued: 0 (waited: 177s)
+In progress: 8, queued: 0 (waited: 198s)
+In progress: 1, queued: 0 (waited: 218s)
+In progress: 19, queued: 0 (waited: 238s)
+In progress: 13, queued: 0 (waited: 259s)
+In progress: 6, queued: 0 (waited: 280s)
+In progress: 2, queued: 0 (waited: 300s)
+In progress: 13, queued: 0 (waited: 321s)
+In progress: 9, queued: 0 (waited: 341s)
+In progress: 6, queued: 0 (waited: 362s)
+In progress: 2, queued: 0 (waited: 382s)
+In progress: 2, queued: 0 (waited: 403s)
+In progress: 1, queued: 0 (waited: 423s)
+In progress: 1, queued: 0 (waited: 444s)
+In progress: 1, queued: 0 (waited: 464s)
+In progress: 20, queued: 12 (waited: 485s)
+In progress: 20, queued: 12 (waited: 505s)
+In progress: 20, queued: 6 (waited: 526s)
+In progress: 19, queued: 3 (waited: 547s)
+In progress: 19, queued: 0 (waited: 567s)
+In progress: 18, queued: 0 (waited: 588s)
+In progress: 16, queued: 0 (waited: 609s)
+In progress: 13, queued: 0 (waited: 629s)
+In progress: 11, queued: 0 (waited: 650s)
+In progress: 7, queued: 0 (waited: 670s)
+In progress: 3, queued: 0 (waited: 691s)
+In progress: 3, queued: 0 (waited: 711s)
+In progress: 3, queued: 0 (waited: 732s)
+In progress: 1, queued: 0 (waited: 752s)
+In progress: 0, queued: 0 (waited: 773s)
+In progress: 1, queued: 0 (waited: 793s)
+In progress: 0, queued: 0 (waited: 814s)
+In progress: 4, queued: 0 (waited: 834s)
+In progress: 2, queued: 0 (waited: 855s)
+In progress: 4, queued: 0 (waited: 875s)
+In progress: 4, queued: 0 (waited: 895s)
+In progress: 2, queued: 0 (waited: 916s)
+In progress: 2, queued: 0 (waited: 936s)
+In progress: 0, queued: 0 (waited: 957s)
+In progress: 0, queued: 0 (waited: 977s)
+Exploring Trained Models
+We can see how many models DataRobot built for this project by querying. Each of them has been tuned individually. Models that appear to have the same name differ either in the amount of data used in training or in the preprocessing steps used (or both).
+
+In [10]:
+models = proj.get_models()
+for idx, model in enumerate(models):
+    print('[{}]: {} - {}'.
+          format(idx, model.metrics['LogLoss']['validation'],
+                 model.model_type))
+
+[0]: 0.36614 - ENET Blender
+[1]: 0.36661 - Advanced AVG Blender
+[2]: 0.36684 - ENET Blender
+[3]: 0.36686 - AVG Blender
+[4]: 0.36712 - eXtreme Gradient Boosted Trees Classifier with Early Stopping
+[5]: 0.36787 - eXtreme Gradient Boosted Trees Classifier with Early Stopping
+[6]: 0.36791 - eXtreme Gradient Boosted Trees Classifier with Early Stopping
+[7]: 0.36839 - Light Gradient Boosted Trees Classifier with Early Stopping
+[8]: 0.3684 - eXtreme Gradient Boosted Trees Classifier with Early Stopping
+[9]: 0.36872 - eXtreme Gradient Boosted Trees Classifier with Early Stopping
+[10]: 0.36873 - Generalized Additive2 Model
+[11]: 0.36938 - Generalized Additive2 Model
+[12]: 0.36952 - RandomForest Classifier (Gini)
+[13]: 0.36971 - Light Gradient Boosted Trees Classifier with Early Stopping
+[14]: 0.36978 - eXtreme Gradient Boosted Trees Classifier with Early Stopping
+[15]: 0.37004 - RandomForest Classifier (Entropy)
+[16]: 0.37073 - RandomForest Classifier (Gini)
+[17]: 0.37121 - Elastic-Net Classifier (mixing alpha=0.5 / Binomial Deviance)
+[18]: 0.37235 - Elastic-Net Classifier (mixing alpha=0.5 / Binomial Deviance)
+[19]: 0.37274 - eXtreme Gradient Boosted Trees Classifier with Early Stopping
+[20]: 0.37275 - Vowpal Wabbit Classifier
+[21]: 0.37283 - RandomForest Classifier (Entropy)
+[22]: 0.37302 - ExtraTrees Classifier (Gini)
+[23]: 0.37335 - Vowpal Wabbit Classifier
+[24]: 0.37345 - eXtreme Gradient Boosted Trees Classifier with Early Stopping
+[25]: 0.37357 - Nystroem Kernel SVM Classifier
+[26]: 0.37362 - Nystroem Kernel SVM Classifier
+[27]: 0.37368 - ExtraTrees Classifier (Gini)
+[28]: 0.37417 - Gradient Boosted Trees Classifier with Early Stopping
+[29]: 0.37495 - Gradient Boosted Trees Classifier with Early Stopping
+[30]: 0.37548 - eXtreme Gradient Boosted Trees Classifier with Early Stopping
+[31]: 0.37574 - Regularized Logistic Regression (L2)
+[32]: 0.37607 - RandomForest Classifier (Gini)
+[33]: 0.37631 - Vowpal Wabbit Classifier
+[34]: 0.37667 - Light Gradient Boosted Trees Classifier with Early Stopping
+[35]: 0.37767 - Generalized Additive2 Model
+[36]: 0.37773 - Regularized Logistic Regression (L2)
+[37]: 0.37814 - eXtreme Gradient Boosted Trees Classifier with Early Stopping
+[38]: 0.37816 - Elastic-Net Classifier (mixing alpha=0.5 / Binomial Deviance)
+[39]: 0.37862 - RandomForest Classifier (Entropy)
+[40]: 0.37921 - Elastic-Net Classifier (L2 / Binomial Deviance) with Binned numeric features
+[41]: 0.37929 - Regularized Logistic Regression (L2)
+[42]: 0.37953 - Auto-tuned K-Nearest Neighbors Classifier (Euclidean Distance)
+[43]: 0.38011 - Regularized Logistic Regression (L2)
+[44]: 0.38013 - Elastic-Net Classifier (L2 / Binomial Deviance)
+[45]: 0.38024 - Eureqa Generalized Additive Model Classifier (3000 Generations)
+[46]: 0.38026 - Auto-Tuned Word N-Gram Text Modeler using token occurrences - desc
+[47]: 0.38037 - Gradient Boosted Trees Classifier
+[48]: 0.38127 - Gradient Boosted Trees Classifier
+[49]: 0.3813 - Light Gradient Boosting on ElasticNet Predictions
+[50]: 0.38136 - Auto-Tuned Word N-Gram Text Modeler using token occurrences - desc
+[51]: 0.38176 - Elastic-Net Classifier (L2 / Binomial Deviance) with Binned numeric features
+[52]: 0.38236 - eXtreme Gradient Boosted Trees Classifier with Early Stopping and Unsupervised Learning Features
+[53]: 0.38237 - eXtreme Gradient Boosted Trees Classifier with Early Stopping
+[54]: 0.3833 - Auto-Tuned Word N-Gram Text Modeler using token occurrences - title
+[55]: 0.38354 - Elastic-Net Classifier (mixing alpha=0.5 / Binomial Deviance) with Unsupervised Learning Features
+[56]: 0.38373 - Elastic-Net Classifier (L2 / Binomial Deviance)
+[57]: 0.38387 - Elastic-Net Classifier (mixing alpha=0.5 / Binomial Deviance)
+[58]: 0.38401 - Auto-Tuned Word N-Gram Text Modeler using token occurrences - emp_title
+[59]: 0.38428 - Auto-Tuned Word N-Gram Text Modeler using token occurrences - emp_title
+[60]: 0.38435 - Auto-Tuned Word N-Gram Text Modeler using token occurrences - emp_title
+[61]: 0.38481 - Auto-Tuned Word N-Gram Text Modeler using token occurrences - title
+[62]: 0.38497 - Auto-Tuned Word N-Gram Text Modeler using token occurrences - title
+[63]: 0.38505 - Auto-Tuned Word N-Gram Text Modeler using token occurrences - addr_state(Text)
+[64]: 0.38524 - RandomForest Classifier (Gini)
+[65]: 0.38532 - Auto-Tuned Word N-Gram Text Modeler using token occurrences - title
+[66]: 0.38572 - Auto-Tuned Word N-Gram Text Modeler using token occurrences - addr_state(Text)
+[67]: 0.38606 - Auto-Tuned Word N-Gram Text Modeler using token occurrences - desc
+[68]: 0.38639 - Majority Class Classifier
+[69]: 0.38642 - Auto-Tuned Word N-Gram Text Modeler using token occurrences - url
+[70]: 0.38662 - Auto-Tuned Word N-Gram Text Modeler using token occurrences - url
+[71]: 0.387 - Auto-Tuned Word N-Gram Text Modeler using token occurrences - addr_state(Text)
+[72]: 0.38711 - Auto-Tuned Word N-Gram Text Modeler using token occurrences - desc
+[73]: 0.38726 - Regularized Logistic Regression (L2)
+[74]: 0.38738 - Auto-Tuned Word N-Gram Text Modeler using token occurrences - url
+[75]: 0.38802 - Auto-Tuned Word N-Gram Text Modeler using token occurrences - addr_state(Text)
+[76]: 0.39071 - Gradient Boosted Greedy Trees Classifier with Early Stopping
+[77]: 0.40035 - Auto-tuned K-Nearest Neighbors Classifier (Euclidean Distance)
+[78]: 0.40057 - Breiman and Cutler Random Forest Classifier
+[79]: 0.41186 - RuleFit Classifier
+[80]: 0.43793 - Naive Bayes combiner classifier
+[81]: 0.44045 - Auto-tuned K-Nearest Neighbors Classifier (Euclidean Distance)
+[82]: 0.44713 - Logistic Regression
+[83]: 0.48423 - Decision Tree Classifier (Gini)
+[84]: 0.60431 - TensorFlow Neural Network Classifier
+Generating Predictions
+Predictions: modeling workers vs. dedicated servers
+There are two ways to generate predictions in DataRobot: using modeling workers and dedicated prediction servers. In this notebook we will use the former, which is slower, occupies one of your modeling worker slots, and has no strong latency guarantees because the jobs go through the project queue. This method can be useful for developing and evaluating models. However, in a production environment, a faster, dedicated prediction server configuration may be more appropriate.
+
+Three step process
+As just mentioned, these predictions go through the modeling queue, so there is a three-step process. The first step is to upload your dataset; the second is to generate prediction jobs. Finally, you need to retreive your predictions when the job is done.
+
+To simplify this example we will make predictions for the same data used to train the models. We could use any of the models DataRobot generated, but will select the model that DataRobot recommends for deployment. DataRobot weighs both model accuracy and runtime to develop this recommendation.
+
+In [11]:
+dataset = proj.upload_dataset(filename)
+
+model = dr.ModelRecommendation.get(
+    proj.id,
+    dr.enums.RECOMMENDED_MODEL_TYPE.RECOMMENDED_FOR_DEPLOYMENT
+).get_model()
+
+pred_job = model.request_predictions(dataset.id)
+preds = pred_job.get_result_when_complete()
+Results
+This example is a binary, or two-class classification problem, so DataRobot estimates the probability of each row is in the positive class (a bad loan) and negative class (not a bad loan). positive_probability and class_1.0 represent the former, and class_0.0 the latter. Given a configurable prediction_threshold, DataRobot creates a prediction whose value is the predicted class for each row. The predictions can be matched to the the uploaded prediction data set through the row_id predictions field.
+
+In [12]:
+preds.head()
+Out[12]:
+positive_probability	prediction	prediction_threshold	row_id	class_0.0	class_1.0
+0	0.092677	0.0	0.5	0	0.907323	0.092677
+1	0.261903	0.0	0.5	1	0.738097	0.261903
+2	0.095587	0.0	0.5	2	0.904413	0.095587
+3	0.121502	0.0	0.5	3	0.878498	0.121502
+4	0.065982	0.0	0.5
