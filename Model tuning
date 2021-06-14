@@ -1,0 +1,246 @@
+You are not reading the most recent version of this documentation. v2.24.0 is the latest version available.
+
+Advanced Model Tuning
+This notebook explores additional capabilities for tuning Eureqa models added in the 2.13 release of the DataRobot API.
+
+Prerequisites
+In order to run this notebook yourself, you will need the following:
+
+This notebook. If you are viewing this in the HTML documentation bundle, you can download all of the example notebooks and supporting materials from Downloads.
+A DataRobot API token. You can find your API token by logging into the DataRobot Web User Interface and looking in your Profile.
+Preparation
+Let’s start by importing the DataRobot API. (If you don’t have it installed already, you will need to install it in order to run this notebook.)
+
+In [1]:
+import datarobot as dr
+from datarobot.enums import AUTOPILOT_MODE
+Configure the Python Client
+Configuring the client requires the following two things:
+
+A DataRobot endpoint - where the API server can be found
+A DataRobot API token - a token the server uses to identify and validate the user making API requests
+The endpoint is usually the URL you would use to log into the DataRobot Web User Interface (e.g., https://app.datarobot.com) with “/api/v2/” appended, e.g., (https://app.datarobot.com/api/v2/).
+
+You can find your API token by logging into the DataRobot Web User Interface and looking in your Profile.
+
+The Python client can be configured in several ways. The example we’ll use in this notebook is to point to a yaml file that has the information. This is a text file containing two lines like this:
+
+endpoint: https://app.datarobot.com/api/v2/
+token: not-my-real-token
+If you want to run this notebook without changes, please save your configuration in a file located under your home directory called ~/.config/datarobot/drconfig.yaml.
+
+In [2]:
+# Initialization with arguments
+# dr.Client(token='<API TOKEN>', endpoint='https://<YOUR ENDPOINT>/api/v2/')
+
+# Initialization with a config file in the same directory as this notebook
+# dr.Client(config_path='drconfig.yaml')
+
+# Initialization with config file located at ~/.config/datarobot/dr.config.yaml
+dr.Client()
+Out[2]:
+<datarobot.rest.RESTClientObject at 0x103acb610>
+Create Project with features
+Create a new project using the 10K_diabetes dataset. This dataset contains a binary classification on the target readmitted.
+
+In [3]:
+url = 'https://s3.amazonaws.com/datarobot_public_datasets/10k_diabetes.xlsx'
+project = dr.Project.create(url, project_name='10K Advanced Modeling')
+print('Project ID: {}'.format(project.id))
+Project ID: 5c001c2c6523cd0200c4a035
+Now, let’s set up the project and run Autopilot to get some models.
+
+In [4]:
+# Increase the worker count to make the project go faster.
+project.set_worker_count(-1)
+Out[4]:
+Project(10K Advanced Modeling)
+In [5]:
+project.set_target('readmitted', mode=AUTOPILOT_MODE.FULL_AUTO)
+Out[5]:
+Project(10K Advanced Modeling)
+In [6]:
+project.wait_for_autopilot()
+In progress: 20, queued: 20 (waited: 0s)
+In progress: 20, queued: 20 (waited: 1s)
+In progress: 20, queued: 20 (waited: 2s)
+In progress: 20, queued: 20 (waited: 3s)
+In progress: 20, queued: 20 (waited: 4s)
+In progress: 18, queued: 20 (waited: 6s)
+In progress: 19, queued: 16 (waited: 10s)
+In progress: 20, queued: 13 (waited: 17s)
+In progress: 20, queued: 13 (waited: 31s)
+In progress: 20, queued: 13 (waited: 51s)
+In progress: 20, queued: 13 (waited: 72s)
+In progress: 20, queued: 11 (waited: 92s)
+In progress: 20, queued: 3 (waited: 113s)
+In progress: 18, queued: 0 (waited: 134s)
+In progress: 10, queued: 0 (waited: 154s)
+In progress: 6, queued: 0 (waited: 175s)
+In progress: 1, queued: 0 (waited: 195s)
+In progress: 19, queued: 0 (waited: 215s)
+In progress: 12, queued: 0 (waited: 236s)
+In progress: 3, queued: 0 (waited: 256s)
+In progress: 2, queued: 0 (waited: 277s)
+In progress: 1, queued: 0 (waited: 297s)
+In progress: 0, queued: 0 (waited: 317s)
+In progress: 10, queued: 0 (waited: 337s)
+In progress: 3, queued: 0 (waited: 358s)
+In progress: 1, queued: 0 (waited: 378s)
+In progress: 1, queued: 0 (waited: 398s)
+In progress: 20, queued: 12 (waited: 419s)
+In progress: 20, queued: 11 (waited: 439s)
+In progress: 20, queued: 7 (waited: 460s)
+In progress: 20, queued: 1 (waited: 480s)
+In progress: 15, queued: 0 (waited: 501s)
+In progress: 9, queued: 0 (waited: 521s)
+In progress: 5, queued: 0 (waited: 542s)
+In progress: 3, queued: 0 (waited: 562s)
+In progress: 1, queued: 0 (waited: 582s)
+In progress: 0, queued: 0 (waited: 603s)
+In progress: 1, queued: 0 (waited: 623s)
+In progress: 0, queued: 0 (waited: 643s)
+In progress: 3, queued: 0 (waited: 664s)
+In progress: 3, queued: 1 (waited: 684s)
+In progress: 4, queued: 0 (waited: 704s)
+In progress: 2, queued: 0 (waited: 725s)
+In progress: 1, queued: 0 (waited: 745s)
+In progress: 0, queued: 0 (waited: 765s)
+In progress: 0, queued: 0 (waited: 786s)
+For the purposes of this example, let’s look at a Eureqa model.
+
+In [7]:
+models = project.get_models()
+model = [
+    m for m in models
+    if m.model_type.startswith('Eureqa Generalized Additive Model')
+][0]
+model
+Out[7]:
+Model(u'Eureqa Generalized Additive Model Classifier (3000 Generations)')
+Now that we have a model, we can start an advanced-tuning session based on that model.
+
+In [8]:
+tune = model.start_advanced_tuning_session()
+Each model’s blueprint consists of a series of tasks. Each task contains some number of tunable parameters. Let’s take a look at the available (tunable) tasks.
+
+In [9]:
+tune.get_task_names()
+Out[9]:
+[u'Eureqa Generalized Additive Model Classifier (3000 Generations)']
+Let’s drill down into the main Eureqa task, to see what parameters it has available.
+
+In [10]:
+task_name = 'Eureqa Generalized Additive Model Classifier (3000 Generations)'
+tune.get_parameter_names(task_name)
+Out[10]:
+[u'EUREQA_building_block__absolute_value',
+ u'EUREQA_building_block__addition',
+ u'EUREQA_building_block__arccosine',
+ u'EUREQA_building_block__arcsine',
+ u'EUREQA_building_block__arctangent',
+ u'EUREQA_building_block__ceiling',
+ u'EUREQA_building_block__complementary_error_function',
+ u'EUREQA_building_block__constant',
+ u'EUREQA_building_block__cosine',
+ u'EUREQA_building_block__division',
+ u'EUREQA_building_block__equal-to',
+ u'EUREQA_building_block__error_function',
+ u'EUREQA_building_block__exponential',
+ u'EUREQA_building_block__factorial',
+ u'EUREQA_building_block__floor',
+ u'EUREQA_building_block__gaussian_function',
+ u'EUREQA_building_block__greater-than',
+ u'EUREQA_building_block__greater-than-or-equal',
+ u'EUREQA_building_block__hyperbolic_cosine',
+ u'EUREQA_building_block__hyperbolic_sine',
+ u'EUREQA_building_block__hyperbolic_tangent',
+ u'EUREQA_building_block__if-then-else',
+ u'EUREQA_building_block__input_variable',
+ u'EUREQA_building_block__integer_constant',
+ u'EUREQA_building_block__inverse_hyperbolic_cosine',
+ u'EUREQA_building_block__inverse_hyperbolic_sine',
+ u'EUREQA_building_block__inverse_hyperbolic_tangent',
+ u'EUREQA_building_block__less-than',
+ u'EUREQA_building_block__less-than-or-equal',
+ u'EUREQA_building_block__logical_and',
+ u'EUREQA_building_block__logical_not',
+ u'EUREQA_building_block__logical_or',
+ u'EUREQA_building_block__logical_xor',
+ u'EUREQA_building_block__logistic_function',
+ u'EUREQA_building_block__maximum',
+ u'EUREQA_building_block__minimum',
+ u'EUREQA_building_block__modulo',
+ u'EUREQA_building_block__multiplication',
+ u'EUREQA_building_block__natural_logarithm',
+ u'EUREQA_building_block__negation',
+ u'EUREQA_building_block__power',
+ u'EUREQA_building_block__round',
+ u'EUREQA_building_block__sign_function',
+ u'EUREQA_building_block__sine',
+ u'EUREQA_building_block__square_root',
+ u'EUREQA_building_block__step_function',
+ u'EUREQA_building_block__subtraction',
+ u'EUREQA_building_block__tangent',
+ u'EUREQA_building_block__two-argument_arctangent',
+ u'EUREQA_experimental__max_expression_ops',
+ u'EUREQA_max_generations',
+ u'EUREQA_num_threads',
+ u'EUREQA_prior_solutions',
+ u'EUREQA_random_seed',
+ u'EUREQA_split_mode',
+ u'EUREQA_sync_migrations',
+ u'EUREQA_target_expression_format',
+ u'EUREQA_target_expression_string',
+ u'EUREQA_training_fraction',
+ u'EUREQA_training_split_expr',
+ u'EUREQA_validation_fraction',
+ u'EUREQA_validation_split_expr',
+ u'EUREQA_weight_expr',
+ u'XGB_base_margin_initialize',
+ u'XGB_colsample_bylevel',
+ u'XGB_colsample_bytree',
+ u'XGB_interval',
+ u'XGB_learning_rate',
+ u'XGB_max_bin',
+ u'XGB_max_delta_step',
+ u'XGB_max_depth',
+ u'XGB_min_child_weight',
+ u'XGB_min_split_loss',
+ u'XGB_missing_value',
+ u'XGB_n_estimators',
+ u'XGB_num_parallel_tree',
+ u'XGB_random_state',
+ u'XGB_reg_alpha',
+ u'XGB_reg_lambda',
+ u'XGB_scale_pos_weight',
+ u'XGB_smooth_interval',
+ u'XGB_subsample',
+ u'XGB_tree_method',
+ u'feature_interaction_max_features',
+ u'feature_interaction_sampling',
+ u'feature_interaction_threshold',
+ u'feature_selection_max_features',
+ u'feature_selection_method',
+ u'feature_selection_min_features',
+ u'feature_selection_threshold',
+ u'highdim_modeling',
+ u'subsample']
+Eureqa does not search for periodic relationships in the data by default. Doing so would take time away from other types of modeling, so could reduce model quality if no periodic relationships are present. But let’s say we want to check whether Eureqa can find any strong periodic relationships in the data, by allowing it to consider models that use the mathematical sine() function.
+
+In [11]:
+tune.set_parameter(
+    task_name=task_name,
+    parameter_name='EUREQA_building_block__sine',
+    value=1)
+More values could be set if desired, using the same approach.
+
+Now that some parameters have been set, the tuned model can be run:
+
+In [12]:
+job = tune.run()
+new_model = job.get_result_when_complete()
+new_model
+Out[12]:
+Model(u'Eureqa Generalized Additive Model Classifier (3000 Generations)')
+You now have a new model that was run using your specified Advanced Tuning parameters.
