@@ -1,0 +1,28 @@
+that mimics the gridded earth decomposition of general circulation models in Matlab
+(Appendix C).
+3 Model configuration
+The model configuration presented below is the ECCO v4 setup used in state estima-
+5 tion (Sects. 4 and 5) and based on the LLC90 grid (Sect. 2). Variants of the ECCO
+v4 setup are also used in un-optimized model simulations (Danabasoglu et al., 2014;
+Marshall et al., 2014). The setup uses fully supported options of MITgcm software, is
+archived and regularly benchmarked (Appendix F), and is freely available along with
+the MITgcm itself (Sect. “Code availability”).
+10 The MITgcm, as configured in ECCO v4, solves the hydrostatic, Boussinesq equa-
+tions (Marshall et al., 1997) using the z
+∗
+rescaled height vertical coordinate (Adcroft
+and Campin, 2004) and the vector-invariant form of the momentum equation (Adcroft
+et al., 2004a). This latter choice yields a discretized momentum equation without metric
+terms, which simplifies the handling of elaborate grids such as LLC90 (Sect. 2). This
+15 section summarizes the model equations, settings, and new MITgcm features (MITgcm
+Group, 2002; Adcroft et al., 2004b) used in ECCO v4. The novelty here largely resides
+in additions of forward model features to the body of adjointed codes (Sect. 4) and in
+their use in the state estimate (Sect. 5). Table 1 provides a list of basic model settings.
+The relative importance of various model settings generally depends on the ocean
+20 state characteristic of interest. Here, a selection of ocean state characteristics is made
+amongst model-data differences (see Sect. 4), monthly time series of global mean
+quantities, and meridional transports (Table 2). These characteristics are used to gauge
+perturbations of 20 year solutions to various model settings (Table 3). They are also
+used to benchmark state estimate re-runs and model revisions (first 3 rows of Table 3;
+25 Appendix F) and to gauge the sensitivity of the state estimate to adjusted control pa-
+rameters (Sect. 5).
