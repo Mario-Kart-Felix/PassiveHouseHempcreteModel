@@ -1,0 +1,111 @@
+For a water column that extends from the bottom at z = −H to the free surface at z = η,
+the z
+∗
+vertical coordinate is defined as z = η+s
+∗
+z
+∗ with the scaling factor s
+∗ = 1+η/H. In
+this section, the notation ∇z
+∗ indicates the nabla operator at constant z
+∗
+, i.e., in a plane
+of constant z
+∗
+value. The z
+∗
+5 coordinate set of equations was introduced by Adcroft and
+Campin (2004) (their Eqs. 9–11 and 13). Written in vector-invariant formulation they
+read:
+∂v
+∂t
++ (f + ζ)kˆ × v + ∇z
+∗KE + w
+∂v
+∂z
++ g∇z
+∗η + ∇hΦ0 = Dz
+∗
+,v + D⊥,v + Fv
+(1)
+∂Φ
+0
+∂z
+= g
+ρ
+0
+ρc
+(2)
+1
+H
+∂η
+∂t
++ ∇z
+∗ (s
+∗
+v ) +
+∂w
+∂z∗
+= s
+∗
+10 F (3)
+∂(s
+∗
+θ)
+∂t
++ ∇z
+∗ (s
+∗θv res) +
+∂(θwres)
+∂z∗
+= s
+∗
+(Fθ + Dσ,θ + D⊥,θ
+) (4)
+∂(s
+∗
+S)
+∂t
++ ∇z
+∗ (s
+∗Sv res) +
+∂(Swres)
+∂z∗
+= s
+∗
+(FS + Dσ,S + D⊥,S
+) (5)
+where v is the horizontal velocity, w
+∗ = w/s∗
+is the vertical velocity in z
+∗
+coordinates4
+,
+kˆ is the vertical unity vector, f and ζ = ∇ × v are the planetary and relative vorticity
+vertical component, KE is the horizontal kinetic energy, g is gravity, ρ
+0
+15 is the density
+anomaly relative to the constant Boussinesq density ρc
+(ρ = ρc+ρ
+0
+), Φ
+0
+is the pressure
+anomaly scaled by constant density (Φ
+0 = p
+0
+/ρc
+), θ and S are the potential tempera-
+ture and salinity, Dz
+∗ ,D⊥,Dσ are subgrid-scale (SGS) processes parameterized as mix-
+ing horizontally, vertically or along iso-neutral surfaces, and Fv
+, F , Fθ
+, FS are the forc-
+4
+For practical reason, the vertical velocity calculated by the model (w per Eq. 3) is neither
+the z
+∗
+vertical velocity w
+∗
+nor the true vertical velocity that would contain additional contributions
+(Adcroft and Campin, 2004, see their Eq. 4).
