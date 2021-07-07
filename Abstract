@@ -1,0 +1,26 @@
+Abstract
+This paper presents the ECCO v4 non-linear inverse modeling framework and its base-
+line solution for the evolving ocean state over the period 1992–2011. Both components
+are publicly available and highly integrated with the MITgcm. They are both subjected
+5 to regular, automated regression tests. The modeling framework includes sets of global
+conformal grids, a global model setup, implementations of model-data constraints and
+adjustable control parameters, an interface to algorithmic differentiation, as well as
+a grid-independent, fully capable Matlab toolbox. The reference ECCO v4 solution is
+a dynamically consistent ocean state estimate (ECCO-Production, release 1) without
+10 un-identified sources of heat and buoyancy, which any interested user will be able to
+reproduce accurately. The solution is an acceptable fit to most data and has been
+found physically plausible in many respects, as documented here and in related pub-
+lications. Users are being provided with capabilities to assess model-data misfits for
+themselves. The synergy between modeling and data synthesis is asserted through
+15 the joint presentation of the modeling framework and the state estimate. In particular,
+the inverse estimate of parameterized physics was instrumental in improving the fit to
+the observed hydrography, and becomes an integral part of the ocean model setup
+available for general use. More generally, a first assessment of the relative importance
+of external, parametric and structural model errors is presented. Parametric and ex-
+20 ternal model uncertainties appear to be of comparable importance and dominate over
+structural model uncertainty. The results generally underline the importance of includ-
+ing turbulent transport parameters in the inverse problem.
+1 Introduction
+The history of inverse modeling in oceanography goes back at least four decades (see
+25 Wunsch, 2006, for a general presentation). The canonical oceanographic inverse prob-
+lem as implemented by Wunsch (1977) consisted in estimating the time mean abso
