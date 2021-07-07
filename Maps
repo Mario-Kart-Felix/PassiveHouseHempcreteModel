@@ -1,0 +1,38 @@
+maps for these highly uncertain coefficients become an integral part of the ECCO v4
+model setup. In Sect. 5, the sensitivity to these parameters adjustments is evaluated,
+and compared with the results in Table 3. The geography of Kgm, Kσ and Kd
+, their
+impact on stratification, and their observability by means of Argo are further assessed
+5 in Forget (2015b).
+3.4 Momentum discretization
+Parameters of the momentum Eq. (1) currently used in ECCO v4 are provided in Ta-
+ble 1. Lateral eddy viscosity is harmonic and dependent on grid spacing, with coef-
+ficient given by 0.25 × µL2
+/∆t, where µ = 2 × 10−2
+(viscAhGrid in Table 1) is a non-
+dimensional scaling number, L
+2
+10 is the spatially varying grid spacing squared (Fig. 2
+shows L) and ∆t = 3600 s (deltaTmom in Table 1). The resulting viscosity varies from
+≈ 103
+to 1.6 × 104m
+2
+s
+−1
+, depending on location. The other dissipation contributions
+used in ECCO v4 are harmonic vertical viscosity and quadratic bottom drag (with pa-
+rameters in Table 1) plus contributions from GGL.
+15 Previous ECCO configurations used the C-D scheme (Adcroft et al., 1999) that inter-
+polates the Coriolis term from the Arakawa C grid to a D grid and back. This scheme
+acts to reduce grid scale noise that is otherwise seen in the vertical velocity fields at all
+time scales, and particularly in the deep ocean (Fig. 4). Large vertical velocities have
+adverse effects on adjoint model stability, which ECCO originally resolved by means
+20 of the C-D scheme. The C-D scheme does however have a large impact on the large
+scale ocean circulation (Fig. 4) and hydrography (Table 3).
+A comparable damping of the barotropic circulation could be obtained through a large
+increase in viscosity (not shown). Also vertical velocity noise is most intense near the
+ocean floor, which led us to the inference that adding viscosity more selectively near
+25 topography could suffice to damp the vertical velocity noise (Fig. 4) and, along with
+the use of vertical implicit advection, could stabilize the adjoint. Because the impact
+of this approach on the circulation and hydrography is more muted than that of the
+C-D scheme, the latter was abandoned in ECCO v4. Targeted viscosity increase near
