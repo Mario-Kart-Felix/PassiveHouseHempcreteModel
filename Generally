@@ -1,0 +1,31 @@
+CS and LLC (Fig. 1). More generally, development of efficient adjoint code using TAF
+largely consists in accommodating non-linearities of added forward model features.
+Overwhelmingly expensive recomputations of non-linear terms in the adjoint are
+treated by adding TAF storage directives9
+. These directives take the form of fortran
+5 comments (starting with “CADJ”) embedded in the forward model code, which TAF
+transforms into sure code for storage operations (for details, see Heimbach et al.,
+2005). The ECCO v4 set-up involves 1458 such comments, which were all inserted
+manually in carefully chosen locations. Once all of the needed storage directives are in
+place, then “algorithmic differentiation” becomes the “automatic differentiation” that an
+10 ECCO v4 user holding a TAF license will experience.
+The non-linear free surface, the Adams–Bashforth 3 time stepping scheme, and im-
+plicit vertical advection were thus added as adjoint capabilities as part of ECCO v4.
+Including the non-linear free surface, along with the real freshwater flux boundary con-
+dition, in the ocean state estimate is regarded as a major improvement in physical
+15 realism. The Adams–Bashforth 3 and implicit vertical advection schemes have a mi-
+nor impact on the forward model solution but provide additional stability also in adjoint
+mode.
+Exactness and completeness of the adjoint is the general goal of the MITgcm adjoint
+development. Exactness can be of particular importance to carry quantitative analy-
+20 ses of adjoint sensitivities (e.g. Verdy et al., 2014; Fukumori et al., 2015). For state
+estimation purposes, however, it is often advantageous, or simply convenient, to use
+an approximated adjoint (see, e.g. Jiang et al., 2002). The most basic approximation
+consists in switching off forward model features in the adjoint, which allows postponing
+the development of a stable adjoint.
+25 In ECCO v4, the Gaspar et al. (1990), Nguyen et al. (2009), and Losch et al. (2010)
+components are thus omitted in the adjoint. Note that the approximated adjoint does
+take into account e.g. the diffusivities and viscosities computed by GGL (Gaspar et al.,
+9
+TAF adopts a “recompute-all” strategy by default; OpenAD in contrast uses “store-all” by
+default.
