@@ -1,0 +1,53 @@
+-opments in the context of ECCO v4. Aside from the dynamical model (Sects. 2 and 3)
+the defining ingredients of state estimation are model-data constraints and control pa-
+rameters. Their ECCO v4 implementation and specifications are covered in Sects. 4.3
+and 4.4.
+5 The state estimate (Sect. 5) is a solution of the forward model (Sects. 2 and 3) at
+an approximate minimum of J. The process of finding such solutions, typically through
+an iterative optimization process and using the adjoint model, is not a focus of this
+paper. A number of well known optimization methods, with third party implementations
+freely available online, can be used to this end (see, e.g. Heimbach et al., 2005, and
+10 references therein).
+Note that the existence of a unique global minimum of J is only rigorously established
+for linear least squares, when it can be solved for in matrix form to machine precision.
+In contrast, for non-linear inverse problems7
+one can only aim to find at least one
+approximate minimum of J that is an acceptable fit to the data (i.e. a fit within specified
+15 errors).
+4.1 Problem formulation
+State estimation consists in minimizing a least squares distance, J(u), that is defined
+as
+J(u) =
+X
+i
+αi ×
+
+d
+T
+i
+R
+−1
+i
+di
+
++
+X
+j
+βj ×
+
+u
+T
+j
+uj
+
+(12)
+di = P(mi − oi
+20 ) (13)
+mi = SDM(v) (14)
+v = Q(u) (15)
+u = R(u
+0
+) (16)
+7
+The degree of non-linearity may depend on the process of interest and increases substan-
+tially upon inclusion of meso-scale eddies.
