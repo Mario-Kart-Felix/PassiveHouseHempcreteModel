@@ -1,0 +1,34 @@
+For problems as massive as ECCO v4 (see Tables 5–7), full error covariance matri-
+ces are impractical and will remain so for the foreseeable future. Matrix free approaches
+are of great practical value in this context. For example, the method of Weaver and
+Courtier (2001) is used in ECCO v4 to specify control parameter adjustment scales
+5 (Sect. 4.4) and penalize large-scale model-data misfits (Forget and Ponte, 2015).
+Within pure linear least-squares theory, under the unrealistic assumption of perfect
+error covariance specifications, multipliers αi
+, βj
+should be omitted from Eq. (12). They
+are, however, adequate in practice as a means to partly compensate for approxima-
+tions in error covariances, and the neglect of Ri non-diagonal terms in particular. They
+10 also provide a practical means to accelerate the optimization of data sets introduced in
+J during later stages of optimization. Furthermore, u
+T
+j
+uj
+(in Eq. 12) essentially are regu-
+larization terms included to limit control parameters adjustments, and the βj multipliers
+provide the corresponding trade-off parameters (Hansen, 1992).
+4.2 Adjoint modeling
+15 The method of Lagrange multipliers (i.e. the adjoint method) and its application to nu-
+merical models being stepped forward in time is well documented elsewhere. In par-
+ticular, the interested reader is referred to Thacker and Long (1988) for a succinct pre-
+sentation, with application to the case of a simple wave equation. The fitting of model
+sea level variability to altimetry through forcing adjustments estimated by the adjoint
+20 method (see, e.g. Forget and Ponte, 2015) is analogous to the simple case treated in
+Thacker and Long (1988). A crucial advantage of this method, as used in ECCO, is that
+it avoids adding source/sink terms of unknown nature to the model equations8
+. Adjoint
+models have many useful applications in their own right, and we shall list a few that are
+particularly relevant to ECCO.
+8Note that this desirable property does not hold in the case of incremental (or sequential)
+data assimilation schemes (whether or not using an adjoint model) but this is not a case of in-
+terest here. In particular, it does not hold in 4DVar as practiced in numerical weather prediction.
