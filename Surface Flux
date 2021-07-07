@@ -1,0 +1,49 @@
+at the surface (Sflux, in gm−2
+s
+−1
+) which is zero in the absence of seaice and salinity
+relaxation (see Sect. 3.5).
+With the non-linear free-surface, the water column thickness varies as the free-
+surface goes up and down (as apparent in Eqs. 7–9). With the z
+∗
+coordinate, this
+variation is distributed vertically over all grid-cells5
+5 . The fact that η enters the continuity
+equation (Eq. 7) also through Rη
+−H
+dz renders the free-surface non-linear; furthermore,
+time dependent grid-cell thickness introduces many more non-linearities which re-
+quired code modifications to ensure efficient adjoint code generation via AD (Sect. 4.2).
+Earlier ECCO configurations relied on the linear free-surface method (LFS), where
+10 column thickness and grid-cell thickness are fixed in time. The LFS version of Eqs. (7)
+and (9) is:
+∂η
+∂t
++ ∇ · Z
+0
+−H
+v dz = FW(PmE)/ρc
+(10)
+∂
+∂t
+(HS) + (PmE)/ρc Se + ∇ · Z
+0
+−H
+S v res dz = Sflux/ρc +
+Z
+0
+−H
+Dσ,S dz (11)
+The Goldsbrough–Stommel circulation (Stommel, 1984) can be accounted for by set-
+15 ting FW = 1 (virtual fresh-water) or ignored (FW = 0). However, since grid-cell thick-
+ness is held fixed with LFS, the dilution effect due to surface freshwater flux needs
+to be represented explicitly as a virtual salt flux (2nd term in Eq. 11) using either the
+local surface salinity S or a constant So as Se, with drawbacks in both cases (see, e.g.,
+Campin et al., 2008). By contrast, the non-linear free-surface formulation incorporates
+20 the dilution effect very naturally, within the time derivative of the water-column salt con-
+tent (first term in Eq. 9).
+5Each z
+∗ = −αH level is a moving z = z
+∗+(1−α)η surface; z = η at z
+∗ = 0; z = −H at z
+∗ = −H.
