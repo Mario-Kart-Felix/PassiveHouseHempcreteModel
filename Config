@@ -1,0 +1,31 @@
+is configured to exchange freshwater at the local SST, the seaice model operates at
+constant internal heat, so it cannot freeze and melt at variable temperature. The added
+correction simply puts the heat differential back into the ocean. Ocean+seaice+snow
+budgets (as well as separate ocean, seaice, snow budgets) of mass, heat and salt are
+5 then closed to machine precision and readily diagnosed (Appendix C).
+In centennial ocean model simulations, it is customary to add a Newtonian relaxation
+of surface salinity to an observation-based climatological map (e.g., Danabasoglu et al.,
+2014) as part of FS
+(Eq. 5). While this method has no clear physical basis, it generally
+adds stability to centennial simulations. In contrast, the state estimate (Sect. 5) has no
+10 salinity relaxation term, so that FS 6= 0 only occurs when seaice (which salinity is set to
+4 g kg−1
+) melts or freezes. Salt rejected by seaice formation is distributed in the vertical
+using the parameterization of Duffy et al. (1999) and Nguyen et al. (2009) as part of
+FS
+.
+Wind stress, also from ERA-Interim, is applied directly as part of Fv
+(Eq. 1). A com-
+15 mon alternative is to compute wind stress through bulk formulae. This approach typi-
+cally requires backing out adequate drag coefficients – so that the results would approx-
+imately match surface stresses that, in atmospheric models, follow from a momentum
+balance rather than bulk formulae – or ad-hoc adjustments of atmospheric variables
+(see, e.g. Large and Yeager, 2004; Risien and Chelton, 2008). In the context of state
+20 estimation, the direct specification of wind stress further allows for a clear distinction
+between momentum controls on the one hand, and buoyancy and mass controls on
+the other hand (Sect. 4).
+4 Estimation framework
+The state estimation problem is defined here by a distance to observations (J) to be
+25 minimized under the constraint of a dynamical model. Section 4.1 formulates the state
+estimation problem in more detail. Section 4.2 provides an overview of the MITgcm ad-
+joint, which is instrumental in solving the state estimation problem, and its recent devel
