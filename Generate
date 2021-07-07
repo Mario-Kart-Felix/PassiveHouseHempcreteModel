@@ -1,0 +1,26 @@
+to generate additional output that may be needed for extended data-model analyses.
+Thus, the authors aim to provide ECCO v4 as a fully-integrated non-linear inverse
+modeling framework including its baseline time-dependent solution that any interested
+user can readily start from, analyze and/or accurately re-run.
+5 The foundation of the ECCO v4 model setup is a set of global grids of the earth
+surface (Sect. 2). The design, implementation and specification of the forward model
+setup and of the estimation framework are presented in Sects. 3 and 4 respectively.
+The baseline ECCO v4 solution (the ECCO-Production, release 1 state estimate) is
+the subject of Sect. 5, which is followed by conclusions and perspectives (Sect. 6).
+10 2 Global grids
+The most visible grid improvement, as compared with earlier ECCO configurations, is
+the extension of the gridded domain to the Arctic. This limitation of ECCO estimates
+produced until 2008 was due to the use of a latitude–longitude grid (LL; left panel of
+Fig. 1) that simply follows straight lines in spherical-polar projection, and requires an
+15 exponentially decreasing time step when approaching the North pole.
+The cubed-sphere grid (CS; center panel in Fig. 1) has been successfully used in
+various MITgcm calculations (e.g., Menemenlis et al., 2005a; Marshall et al., 2007b)
+resolving the Arctic. The CS grid is a conformal mapping of a sphere to a cube surface,
+such that each face contains one sixth of the so gridded earth (Rančić et al., 1996;
+20 Purser and Rančić, 1998). At its 8 vertices (cube corners), CS grid lines converge
+exponentially as resolution increases, but more slowly than for LL at geographic poles.
+However, a number of shortcomings of CS have been noted. First, loss of orthogonal-
+ity near the cube corner is exacerbated when increasing horizontal resolution. Second,
+some of the vertices have to be placed on ocean-covered areas, and have an ex-
+25 ceedingly high resolution, requiring unnecessarily small time steps. Third, such grids
+represent an obstacle for new users who were accustomed to latitude–longitude grids.
