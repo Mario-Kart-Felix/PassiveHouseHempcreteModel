@@ -1,0 +1,26 @@
+5.2 Improved hydrography fit
+In developing and producing the state estimate, a primary goal was to improve the fit
+5 to observed in situ profiles (of T and S) as compared with earlier ECCO estimates (see
+Forget, 2010). As already apparent in Table 3, the inclusion of parameterized physics
+as controls (i.e. adjustable model parameters) was instrumental in achieving that goal.
+The present section focuses on this defining characteristic of the baseline ECCO v4
+solution.
+10 The fit to in situ profiles of temperature and salinity is depicted in Fig. 9 as a function
+of time, for ECCO v4 and earlier MITgcm solutions. For ECCO v4 the model-data
+distance for in situ profiles (see Sect. 4.3) is jT ≈ 1.5 for potential temperature and
+jS ≈ 1.5 for salinity (on average over all depths, locations and times). Average values
+of 1 would be ideal if the error estimate (see Forget and Wunsch, 2007) was perfect
+15 and the state estimate was devoid of large scale errors (neither of which is true). It is
+suspected that jT and jS could be further reduced. Values of 1.5, however, are regarded
+as sufficiently low to justify analysis of the state estimate water masses (Speer and
+Forget, 2013) and stratification (Forget, 2015b). Furthermore, jT and jS are already
+much reduced (by a factor of 2 to 10) compared with earlier ECCO estimates (Fig. 9)
+20 throughout the period from 1992 to 2011. Amongst earlier ECCO estimates, the ECCO
+v3 solution comes the closest to the observed hydrography with a typical distance to
+observations of 3 (Fig. 9).
+The contrasts in jT and jS amongst solutions (Fig. 9) reflect large scale misfits as
+illustrated in Fig. 10. This is equally true for ECCO2 eddying solutions (bottom panels)
+25 and for coarser model solutions (top and middle panels). Such broad misfit patterns
+typically denote spurious model drifts and biases, which are common symptoms of
+model deficiencies (Stammer, 2005; Ferreira et al., 2005). Similarities in misfit patterns
+amongst ECCO2 eddying solutions (using a common model set-up, under different sets
