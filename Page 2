@@ -1,0 +1,29 @@
+lute ocean circulation from synoptic, ship-based, hydrography transects. The physical
+model combined thermal-wind shear (diagnosed from observations) and a continuity
+equation. The model parameter to be estimated (i.e. the control vector) was the “ref-
+erence level velocity”. Least squares provide an adequate formulation to this inverse
+5 problem, and a practical method to avoid mis-interpreting geophysical noise (synoptic
+eddies, internal waves, etc.) for time mean ocean circulation features (Wunsch, 1977).
+The original implementation has been extended substantially over subsequent
+decades, and some of the key technical developments are worth recalling (see also
+Wunsch and Heimbach, 2013a, for a review of the state of the art), as they provide
+10 the context for the present work. Non-linearities were introduced (Mercier, 1986) to
+incorporate optimal interpolation of hydrographic data in the inverse problem. While
+diapycnal and horizontal diffusion were also introduced early on (Schott and Zantopp,
+1980; Olbers et al., 1985), the need for extending the inversion problem to parameter-
+ized advective eddy transports (Gent and Mcwilliams, 1990) was not fully appreciated
+15 until the study of Ferreira et al. (2005).
+Time dependency and the use of Lagrange multipliers (i.e. the adjoint method) were
+first introduced in ocean inverse modeling by Thacker and Long (1988) and Holland
+and Malanotte-Rizzoli (1989) and applied to general circulation models by Tziperman
+and Thacker (1989) and Tziperman et al. (1992a, b). Later on algorithmic differentiation
+20 (AD) was introduced, making the use of Lagrange multipliers more practical (Griewank,
+1992; Giering and Kaminski, 1998). Its application (Marotzke et al., 1999; Heimbach
+et al., 2002, 2005) to the Massachusetts Institute of Technology general circulation
+model (MITgcm; Marshall et al., 1997; Adcroft et al., 2004b) allowed for implementation
+of the time varying non-linear inverse problem, as envisioned by Wunsch and Minster
+25 (1982) and Wunsch (1984), to the case of actual observations (Stammer et al., 2002;
+Ferron and Marotzke, 2003).
+The MITgcm AD capabilities remain exceptional amongst general circulation models.
+Over the last decade, in the context of the Estimating the Circulation and Climate of
+the Ocean (ECCO) project, the MITgcm non-linear inverse modeling framework (using
